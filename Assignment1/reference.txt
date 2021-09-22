@@ -1,0 +1,5 @@
+1. Musical Genre Classification of Audio Signals
+https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=1021072
+
+2. A Study on Feature Analysis for Musical Instrument Classification
+https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=4436069
