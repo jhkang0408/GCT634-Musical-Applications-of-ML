@@ -116,6 +116,31 @@ def mean_std_perceptionbased(dataset='train'):
 
     return perceptionbased_mat 
 
+def mean_std_deltaperceptionbased(dataset='train'):    
+    f = open(data_path + dataset + '_list.txt','r')
+
+    if dataset == 'train':
+        perceptionbased_mat = np.zeros(shape=(PERCEPTIONBASED_DIM*2, 1100))
+    else:
+        perceptionbased_mat = np.zeros(shape=(PERCEPTIONBASED_DIM*2, 300))
+
+    i = 0
+    for file_name in f:
+        # load perceptionbased file
+        file_name = file_name.rstrip('\n')
+        file_name = file_name.replace('.wav','.npy')
+        perceptionbased_file = perceptionbased_path + file_name
+        perceptionbased = np.load(perceptionbased_file)
+        perceptionbased_delta = librosa.feature.delta(perceptionbased)
+        
+        # mean pooling, std pooling
+        perceptionbased_mat[:,i]= np.concatenate((np.mean(perceptionbased_delta, axis=1), np.std(perceptionbased_delta, axis=1)), axis=0)
+        i = i + 1
+
+    f.close()
+
+    return perceptionbased_mat  
+
 def euclidean_dist(x, y):
     """
     :param x: [m, d]
@@ -172,7 +197,7 @@ def codebook_based_feature_summarization(dataset='train'):
     if not os.path.exists('codebook.npy'):
         print('Codebook Construction...') 
         from sklearn.cluster import KMeans 
-        k = 64
+        k = 32
         codebook = (KMeans(n_clusters=k, random_state=0).fit(descriptor)).cluster_centers_
         np.save('codebook', codebook) 
     else:
@@ -185,25 +210,18 @@ def codebook_based_feature_summarization(dataset='train'):
     return np.array(histogram_features).T
         
 if __name__ == '__main__':  
-    # train_X = np.concatenate((mean_std_mfcc('train'), mean_std_deltamfcc(dataset='train'), mean_std_delta2mfcc(dataset='train'), mean_std_perceptionbased(dataset='train')), axis=0)
-    # valid_X = np.concatenate((mean_std_mfcc('valid'), mean_std_deltamfcc(dataset='valid'), mean_std_delta2mfcc(dataset='valid'), mean_std_perceptionbased(dataset='valid')), axis=0)          
-    train_X = codebook_based_feature_summarization(dataset='train')
-    valid_X = codebook_based_feature_summarization(dataset='valid')
+
+    # label generation
+    cls = np.array([1,2,3,4,5,6,7,8,9,10])
+    train_Y = np.repeat(cls, 110)
+    valid_Y = np.repeat(cls, 30)  
+    
+    train_X = np.concatenate((mean_std_perceptionbased(dataset='train'), mean_std_deltaperceptionbased(dataset='train'), mean_std_deltamfcc(dataset='train'), codebook_based_feature_summarization(dataset='train')), axis=0)
+    valid_X = np.concatenate((mean_std_perceptionbased(dataset='valid'), mean_std_deltaperceptionbased(dataset='valid'), mean_std_deltamfcc(dataset='valid'), codebook_based_feature_summarization(dataset='valid')), axis=0) 
     
     train_X = train_X.T
     valid_X = valid_X.T
-    
-    plt.figure(1)
-    plt.subplot(2,1,1)
-    plt.imshow(train_X.T, interpolation='nearest', origin='lower', aspect='auto')
-    plt.colorbar(format='%+2.0f dB')
 
-    plt.subplot(2,1,2)
-    plt.imshow(valid_X.T, interpolation='nearest', origin='lower', aspect='auto')
-    plt.colorbar(format='%+2.0f dB')
-
-    plt.show() 
-    
     # feature normalizaiton    
     train_X_mean = np.mean(train_X, axis=0)
     train_X = train_X - train_X_mean
@@ -211,19 +229,19 @@ if __name__ == '__main__':
     train_X = train_X / (train_X_std + 1e-5)
         
     valid_X = valid_X - train_X_mean
-    valid_X = valid_X/(train_X_std + 1e-5)
+    valid_X = valid_X/(train_X_std + 1e-5)  
     
-    plt.figure(1)
-    plt.subplot(2,1,1)
-    plt.imshow(train_X.T, interpolation='nearest', origin='lower', aspect='auto')
-    plt.colorbar(format='%+2.0f dB')
-
-    plt.subplot(2,1,2)
-    plt.imshow(valid_X.T, interpolation='nearest', origin='lower', aspect='auto')
-    plt.colorbar(format='%+2.0f dB')
-
-    plt.show()
-
+    instruments = ['Bass', 'Brass', 'Flute', 'Guitar', 'Keyboard', 'Mallet', 'Organ', 'Reed', 'String', 'Vocal']
+    for i in range(10):
+        plt.figure()
+        plt.title(instruments[i])    
+        plt.imshow((train_X[train_Y==i+1]).T, interpolation='nearest', origin='lower', aspect='auto')
+        plt.colorbar(format='%+2.0f dB')
+            
+        # plt.imshow((valid_X[valid_Y==i+1]).T, interpolation='nearest', origin='lower', aspect='auto')
+        # plt.colorbar(format='%+2.0f dB')
+    
+        plt.show()
 
 
 

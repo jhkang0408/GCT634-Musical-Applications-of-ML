@@ -14,6 +14,7 @@ data_path = './dataset/'
 mfcc_path = './mfcc/'
 perceptionbased_path = './perceptionbased/'
 
+MELBIN_DIM = 128
 MFCC_DIM = 13
 PERCEPTIONBASED_DIM = 5
 
@@ -33,7 +34,7 @@ def extract_mfcc(dataset='train'):
         y, sr = librosa.load(file_path, sr=22050)
 
         ##### Method 1        
-        S = librosa.feature.melspectrogram(y=y, sr=sr, n_mels=128,fmax=8000)
+        S = librosa.feature.melspectrogram(y=y, sr=sr, n_mels=MELBIN_DIM,fmax=8000)
         mfcc = librosa.feature.mfcc(S=librosa.power_to_db(S), n_mfcc=MFCC_DIM)                
         
         ##### Method 2         
