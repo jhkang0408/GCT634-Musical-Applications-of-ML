@@ -3,3 +3,6 @@ https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=1021072
 
 2. A Study on Feature Analysis for Musical Instrument Classification
 https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=4436069
+
+3. Sklearn Classifier comparison
+https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html#sphx-glr-auto-examples-classification-plot-classifier-comparison-py
