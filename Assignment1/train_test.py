@@ -10,7 +10,7 @@ import os
 import numpy as np
 import librosa
 from feature_summary import *
-from sklearn.metrics import confusion_matrix 
+from sklearn.metrics import confusion_matrix, plot_confusion_matrix
 
 # classifier
 from sklearn.linear_model import SGDClassifier
@@ -68,20 +68,21 @@ if __name__ == '__main__':
     valid_X = valid_X - train_X_mean
     valid_X = valid_X/(train_X_std + 1e-5)
 
-    # # dimension reduction    
-    # dr = PCA(n_components=50, svd_solver='full')
-    # dr.fit_transform(train_X)
-    # plt.figure()
-    # plt.plot(dr.explained_variance_)
-    # train_X = (dr.fit_transform(train_X))
-    # valid_X = (dr.transform(valid_X))
-        
+    # dimension reduction    
+    dr = PCA(n_components=50, svd_solver='full')
+    dr.fit_transform(train_X)
+    plt.figure()
+    plt.plot(dr.explained_variance_)
+    plt.title('Scree plot of eigenvalues')
+    plt.xlabel('Number of principal components')
+    plt.ylabel('Eigenvalues')
+    
     model_name = 'Non_Linear_SVM'
     
-    if model_name == 'Linear_SVM':        
+    if model_name == 'Linear_SVM':
         alphas = [1e-3, 1e-2, 1e-1, 1, 1e1, 1e2, 1e3]
     elif model_name == 'Non_Linear_SVM': 
-        alphas = [1e-3, 1e-2, 1e-1, 1, 1e1, 1e2, 1e3]
+        alphas = [1e-2, 1e-1, 1, 1e1, 1e2, 1e3]
     elif model_name == 'MLP':
         alphas = [1e-4, 1e-3, 1e-2, 1e-1]
     elif model_name == 'KNN':
@@ -106,4 +107,36 @@ if __name__ == '__main__':
     print('final validation accuracy = ' + str(accuracy) + ' %')
     print('final conufsion matrix = ')
     print(confusion_matrix(valid_Y, valid_Y_hat))
+    
+    # confusion matrix plot    
+    instruments = ['Bass', 'Brass', 'Flute', 'Guitar', 'Keyboard', 'Mallet', 'Organ', 'Reed', 'String', 'Vocal']
+    plot = plot_confusion_matrix(final_model, 
+                                 valid_X, valid_Y, 
+                                 display_labels=instruments, 
+                                 cmap=plt.cm.Blues,
+                                 xticks_rotation=45,
+                                 normalize=None)
+    plot.ax_.set_title('Instrument Confusion Matrix')        
+    
+    # Dimensionality Reduction PCA Plot
+    dr = PCA(n_components=3, svd_solver='full')
+    train_X = (dr.fit_transform(train_X))
+    plt.figure()  
+    plt.xlabel('Principal Component1')
+    plt.ylabel('Principal Component2') 
+    plt.title('PCA Result (2D)')
+    for i in range(10): 
+        plt.plot(train_X[:,0][train_Y==i], train_X[:,1][train_Y==i], 'o', ms=4.5, label=instruments[i], alpha=.5)    
+    plt.legend(loc=1, prop={'size': 8})      
 
+    fig = plt.figure() 
+    ax = fig.add_subplot(111, projection='3d')  
+    for i in range(10): 
+        ax.scatter(train_X[:,0][train_Y==i], train_X[:,1][train_Y==i], train_X[:,2][train_Y==i], label=instruments[i],alpha=0.5, s=1) 
+    ax.set_xlabel('Principal Component1')
+    ax.set_ylabel('Principal Component2')
+    ax.set_zlabel('Principal Component3')        
+    plt.legend()       
+    plt.title("PCA Result (3D)") 
+    plt.legend(loc=1, prop={'size': 7})
+    plt.draw()         

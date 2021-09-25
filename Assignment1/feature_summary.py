@@ -10,7 +10,8 @@ import sys
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-
+from mpl_toolkits.mplot3d import Axes3D
+ 
 data_path = './dataset/'
 mfcc_path = './mfcc/'
 perceptionbased_path = './perceptionbased/'
@@ -231,12 +232,20 @@ if __name__ == '__main__':
     valid_X = valid_X - train_X_mean
     valid_X = valid_X/(train_X_std + 1e-5)  
     
+    # Feature Visualization     
     instruments = ['Bass', 'Brass', 'Flute', 'Guitar', 'Keyboard', 'Mallet', 'Organ', 'Reed', 'String', 'Vocal']
+
+    plt.figure()
+    plt.title('Bass')    
+    plt.ylabel('Feature')
+    plt.xlabel('Each Sample')
+    plt.imshow((train_X[train_Y==1]).T, interpolation='nearest', origin='lower', aspect='auto')
+    plt.colorbar(format='%+1.0f')
+    
     for i in range(10):
         plt.figure()
         plt.title(instruments[i])    
         plt.imshow((train_X[train_Y==i+1]).T, interpolation='nearest', origin='lower', aspect='auto')
-        plt.colorbar(format='%+2.0f dB')
             
         # plt.imshow((valid_X[valid_Y==i+1]).T, interpolation='nearest', origin='lower', aspect='auto')
         # plt.colorbar(format='%+2.0f dB')
