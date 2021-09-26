@@ -33,24 +33,8 @@ def extract_mfcc(dataset='train'):
         file_path = data_path + file_name
         y, sr = librosa.load(file_path, sr=22050)
 
-        ##### Method 1        
         S = librosa.feature.melspectrogram(y=y, sr=sr, n_mels=MELBIN_DIM,fmax=8000)
         mfcc = librosa.feature.mfcc(S=librosa.power_to_db(S), n_mfcc=MFCC_DIM)                
-        
-        ##### Method 2         
-        # # STFT
-        # S = librosa.core.stft(y, n_fft=1024, hop_length=512, win_length=1024)
-        # # power spectrum
-        # D = np.abs(S)**2
-        # # mel spectrogram (512 --> 40)
-        # mel_basis = librosa.filters.mel(sr, 1024, n_mels=40)
-        # mel_S = np.dot(mel_basis, D)
-        # #log compression
-        # log_mel_S = librosa.power_to_db(mel_S)
-        # # mfcc (DCT)
-        # mfcc = librosa.feature.mfcc(S=log_mel_S, n_mfcc=13)
-        # mfcc = mfcc.astype(np.float32)    # to save the memory (64 to 32 bits)
-         
         
         file_name = file_name.replace('.wav','.npy')
         save_file = mfcc_path + file_name

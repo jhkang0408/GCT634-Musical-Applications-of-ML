@@ -38,11 +38,15 @@ def train_model(train_X, train_Y, valid_X, valid_Y, model_name, hyper_param1):
     # train
     clf.fit(train_X, train_Y)
 
+    # train
+    train_Y_hat = clf.predict(train_X)
+    accuracy = np.sum((train_Y_hat == train_Y))/1100.0*100.0
+    print('train accuracy = ' + str(accuracy) + ' %')
+ 
     # validation
     valid_Y_hat = clf.predict(valid_X)
-
     accuracy = np.sum((valid_Y_hat == valid_Y))/300.0*100.0
-    print('validation accuracy = ' + str(accuracy) + ' %')
+    print('validation accuracy = ' + str(accuracy) + ' %\n')
     
     return clf, accuracy
 
@@ -50,8 +54,11 @@ if __name__ == '__main__':
 
     # load data
     train_X = np.concatenate((mean_std_perceptionbased(dataset='train'), mean_std_deltaperceptionbased(dataset='train'), mean_std_deltamfcc(dataset='train'), codebook_based_feature_summarization(dataset='train')), axis=0)
-    valid_X = np.concatenate((mean_std_perceptionbased(dataset='valid'), mean_std_deltaperceptionbased(dataset='valid'), mean_std_deltamfcc(dataset='valid'), codebook_based_feature_summarization(dataset='valid')), axis=0)             
-
+    valid_X = np.concatenate((mean_std_perceptionbased(dataset='valid'), mean_std_deltaperceptionbased(dataset='valid'), mean_std_deltamfcc(dataset='valid'), codebook_based_feature_summarization(dataset='valid')), axis=0)
+    
+    # train_X = mean_std_mfcc(dataset='train')
+    # valid_X = mean_std_mfcc(dataset='valid')
+    
     # label generation
     cls = np.array([1,2,3,4,5,6,7,8,9,10])
     train_Y = np.repeat(cls, 110)
@@ -68,14 +75,14 @@ if __name__ == '__main__':
     valid_X = valid_X - train_X_mean
     valid_X = valid_X/(train_X_std + 1e-5)
 
-    # dimension reduction    
-    dr = PCA(n_components=50, svd_solver='full')
-    dr.fit_transform(train_X)
-    plt.figure()
-    plt.plot(dr.explained_variance_)
-    plt.title('Scree plot of eigenvalues')
-    plt.xlabel('Number of principal components')
-    plt.ylabel('Eigenvalues')
+    # # dimension reduction    
+    # dr = PCA(n_components=50, svd_solver='full')
+    # dr.fit_transform(train_X)
+    # plt.figure()
+    # plt.plot(dr.explained_variance_)
+    # plt.title('Scree plot of eigenvalues')
+    # plt.xlabel('Number of principal components')
+    # plt.ylabel('Eigenvalues')
     
     model_name = 'Non_Linear_SVM'
     
@@ -140,3 +147,4 @@ if __name__ == '__main__':
     plt.title("PCA Result (3D)") 
     plt.legend(loc=1, prop={'size': 7})
     plt.draw()         
+        
